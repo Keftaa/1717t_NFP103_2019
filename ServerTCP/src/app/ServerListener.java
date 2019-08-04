@@ -3,7 +3,7 @@ package app;
 import java.io.*;
 import java.net.Socket;
 
-public class ServerListener {
+public class ServerListener extends Thread {
     Client client;
     PrintWriter out;
     BufferedReader in;
