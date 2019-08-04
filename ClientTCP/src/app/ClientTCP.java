@@ -2,26 +2,65 @@ package app;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class ClientTCP {
 
-    private static BufferedReader getInput(Socket p) throws IOException
+    private Socket clientSocket;
+    private PrintWriter out;
+    private BufferedReader in;
+
+
+
+    private BufferedReader getInput() throws IOException
     {
-        return new BufferedReader(new InputStreamReader(p.getInputStream()));
+        return new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
     }
 
-    private static PrintWriter getOutput(Socket p) throws IOException
+    private PrintWriter getOutput() throws IOException
     {
-        return new PrintWriter(new OutputStreamWriter(p.getOutputStream()));
+        return new PrintWriter(new OutputStreamWriter(this.clientSocket.getOutputStream()), true);
+    }
+
+    public void start(String ip, int port) throws IOException, UnknownHostException {
+        clientSocket = new Socket(ip, port);
+        out = this.getOutput();
+        in = this.getInput();
+        Scanner scanner = new Scanner(System.in);
+        while(!clientSocket.isClosed()) {
+            String input = scanner.nextLine();
+            this.send(input);
+        }
+        scanner.close();
+    }
+
+    public void send(String msg) throws IOException {
+        out.println(msg);
+        String resp = in.readLine();
+        this.checkResponse(resp);
+    }
+
+    private void checkResponse(String resp){
+        System.out.println(resp);
+        if("bye".equals(resp)) {
+            try {
+                this.stop();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void stop() throws IOException {
+        in.close();
+        out.close();
+        clientSocket.close();
     }
 
     public static void main(String[] args) throws IOException
     {
-        Socket l = new Socket("localhost", 2000);
-        System.out.println(l.getLocalSocketAddress());
-        BufferedReader ir = getInput(l);
-        PrintWriter reply = getOutput(l);
-        reply.printf("Bonjour\n"); reply.flush();
-        System.out.println(ir.readLine());
+        ClientTCP client = new ClientTCP();
+        client.start("127.0.0.1", 2000);
     }
 }
