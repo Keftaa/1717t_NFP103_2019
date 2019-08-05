@@ -91,7 +91,14 @@ public class ServerListener extends Thread {
 
     public void quitClient() {
         this.out.println("salut!");
-        this.out.println(this.client.getName() + " déconnecté");
+        try {
+            this.stopConnection();
+            this.serverTCP.removeClient(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.serverTCP.notifyAllUsers(this.client.getName() + " s'est déconnecté!");
+
     }
     public void stopConnection() throws IOException {
         this.in.close();
