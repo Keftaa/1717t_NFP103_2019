@@ -17,6 +17,7 @@ public class BroadcastServer implements Runnable {
 
             byte[] sendData = "SERVER_SCAN".getBytes();
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, packet.getAddress(), packet.getPort());
+            socket.send(sendPacket);
             socket.close();
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ServerTCP {
 
@@ -29,7 +30,7 @@ public class ServerTCP {
     }
 
     private void listenToClient(Socket cs) {
-        ServerListener sl = new ServerListener(cs);
+        ServerListener sl = new ServerListener(cs, this);
         sl.start();
         this.serverListeners.add(sl);
     }
@@ -44,4 +45,38 @@ public class ServerTCP {
         serverThread.start();
         server.start(2000);
     }
+
+    public void broadcastMessage(String message, Client client) {
+        serverListeners.forEach(serverListener -> serverListener.sendMessage(message, client));
+    }
+
+    public void notifyAllUsers (String message) {
+        serverListeners.forEach(serverListener -> serverListener.notifyUser(message));
+    }
+
+    public void removeClient(ServerListener sl) {
+        this.serverListeners.remove(sl);
+    }
+
+    public void shutdown() {
+        this.serverListeners.forEach(ServerListener::kill);
+        this.serverListeners.clear();
+        System.exit(1);
+    }
+
+
+    ArrayList<ServerListener> getServerListeners() {
+        return this.serverListeners;
+    }
+
+    public void killUser(String username) {
+        for (Iterator<ServerListener> iterator = this.serverListeners.iterator(); iterator.hasNext();) {
+            ServerListener sl = iterator.next();
+            if(sl.client.getName().equals(username)) {
+                sl.kickUser();
+                iterator.remove();
+            }
+        }
+    }
+
 }
