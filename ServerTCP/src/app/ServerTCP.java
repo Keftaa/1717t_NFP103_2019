@@ -43,6 +43,10 @@ public class ServerTCP {
         ServerTCP server = new ServerTCP();
         Thread serverThread = new Thread(new BroadcastServer());
         serverThread.start();
+
+        Thread inputHandler = new Thread(new InputHandler(server));
+        inputHandler.start();
+
         server.start(2000);
     }
 

@@ -11,6 +11,7 @@ public class ClientTCP {
     private PrintWriter out;
     private BufferedReader in;
     private boolean hasStopped = false;
+    Thread clientListener;
 
 
 
@@ -28,7 +29,13 @@ public class ClientTCP {
         clientSocket = new Socket(ip, port);
         out = this.getOutput();
         in = this.getInput();
+        this.startClientListener();
         System.out.println("Connecté!");
+    }
+
+    private void startClientListener() {
+        clientListener = new Thread(new ClientListener(this));
+        clientListener.start();
     }
 
     public void send(String msg) throws IOException {
@@ -54,23 +61,33 @@ public class ClientTCP {
         }
     }
 
-    private void processInput(String input) {
+    private boolean processInput(String input) throws IOException {
         if(input.startsWith("_fetch")){
             System.out.println("Recherche en cours, patientez...");
             Thread bc = new Thread(new BroadcastClient());
             bc.start();
             System.out.println("Recherche terminée");
+            return true;
         } else if(input.startsWith("_connect")) {
             this.connectToServer(input);
+            return true;
         } else if(input.equals("_help")) {
             this.printHelp();
+            return true;
+        } else if(input.equals("_quit")) {
+            this.stop();
+            return true;
         }
+        return false;
     }
 
     private void printHelp(){
         System.out.println("Tapez _fetch pour rechercher des serveurs");
         System.out.println("_connect <ip serveur> <votre pseudonyme>");
         System.out.println("_help pour ce message");
+        System.out.println("_who pour une liste des utilisateurs actifs.");
+        System.out.println("_quit pour quitter");
+
     }
 
     private void connectToServer(String input) {
@@ -84,27 +101,58 @@ public class ClientTCP {
             e.printStackTrace();
         }
     }
-    private void checkResponse(String resp){
-        System.out.println(resp);
-        if("bye".equals(resp)) {
+    boolean checkResponse(String resp) {
+        if ("_quit".equals(resp)) {
             try {
                 this.stop();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return false;
+        } else if ("_kill".equals(resp)) {
+            this.killConnection();
+            return false;
         }
+        return true;
     }
+
+    private void killConnection() {
+        try {
+            in.close();
+            out.close();
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        clientListener.interrupt();
+        clientListener = null;
+    }
+
 
     public void stop() throws IOException {
         in.close();
         out.close();
         hasStopped = true;
         clientSocket.close();
+        System.exit(1);
+    }
+
+    Socket getClientSocket() {
+        return clientSocket;
+    }
+
+    BufferedReader getSocketInput() {
+        return in;
     }
 
     public static void main(String[] args) throws IOException
     {
         ClientTCP client = new ClientTCP();
+        if (args.length > 2) {
+            if (args[0].equals("_connect")) {
+                client.connectToServer(String.join(" ", args));
+            }
+        }
         client.initUserInput();
     }
 }
