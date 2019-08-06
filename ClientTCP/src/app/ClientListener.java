@@ -13,7 +13,9 @@ public class ClientListener implements Runnable {
     public void run() {
         while (!clientTCP.getClientSocket().isClosed() && clientTCP.getClientSocket().isConnected()) {
             try {
+                System.out.println("Waiting response");
                 String resp = clientTCP.getSocketInput().readLine();
+                System.out.println("Response received");
                 if (clientTCP.checkResponse(resp)) {
                     System.out.println(resp);
                 } else {

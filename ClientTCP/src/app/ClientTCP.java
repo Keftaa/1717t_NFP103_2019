@@ -39,9 +39,9 @@ public class ClientTCP {
     }
 
     public void send(String msg) throws IOException {
+        System.out.println("Before sending message to server.");
         out.println(msg);
-        String resp = in.readLine();
-        this.checkResponse(resp);
+        System.out.println("After sending message to server.");
     }
 
     public void sendName(String msg) {
@@ -53,11 +53,14 @@ public class ClientTCP {
         System.out.println("TCP client prêt");
         System.out.println("_help pour commencer");
         while(!hasStopped){
+            System.out.println("Before user input.");
             String input = scanner.nextLine();
             if(clientSocket != null && !clientSocket.isClosed()) {
+                System.out.println("Before sent");
                 this.send(input);
             }
             this.processInput(input);
+            System.out.println("After processing input");
         }
     }
 

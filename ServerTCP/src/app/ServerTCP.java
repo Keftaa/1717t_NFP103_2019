@@ -74,13 +74,14 @@ public class ServerTCP {
     }
 
     public void killUser(String username) {
+        ServerListener sl = null;
         for (Iterator<ServerListener> iterator = this.serverListeners.iterator(); iterator.hasNext();) {
-            ServerListener sl = iterator.next();
+            sl = iterator.next();
             if(sl.client.getName().equals(username)) {
-                sl.kickUser();
-                iterator.remove();
+                break;
             }
         }
+        sl.kickUser();
     }
 
 }

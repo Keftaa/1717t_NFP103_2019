@@ -10,7 +10,7 @@ public class BroadcastClient implements Runnable {
             DatagramSocket c = new DatagramSocket();
             c.setBroadcast(true);
             byte[] sendData = "SERVER_SCAN".getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("192.168.0.255"), 2001);
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), 2001);
             c.send(sendPacket);
 
             byte[] recBuf = new byte[15000];
