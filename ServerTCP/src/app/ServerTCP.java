@@ -13,6 +13,7 @@ public class ServerTCP {
     PrintWriter out;
     BufferedReader in;
 
+
     public ServerTCP(){
         this.serverListeners = new ArrayList<ServerListener>();
     }

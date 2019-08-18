@@ -40,9 +40,7 @@ public class ServerListener extends Thread {
                 if (!this.client.getSocket().isConnected() || this.client.getSocket().isClosed()) {
                     break;
                 }
-                System.out.println("Waiting user message.");
                 line = in.readLine();
-                System.out.println("User message received");
                 if(!this.checkMessage(line)) {
                     this.stopConnection();
                     break;
@@ -69,9 +67,7 @@ public class ServerListener extends Thread {
         } else if("_who".equals(message)) {
             this.sendConnectedUsers();
         } else {
-            System.out.println("Before broadcasting message.");
             this.serverTCP.broadcastMessage(message, this.client);
-            System.out.println("Message sent");
         }
         return true;
     }
